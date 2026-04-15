@@ -152,19 +152,12 @@ export default function Trivia() {
     );
   } else if (gameState == "QUIZ_ACTIVE") {
     return (
-      <>
-        {errorMessage.length > 0 && <p>{errorMessage}</p>}
-        {isLoading ? (
-          <p>Loading</p>
-        ) : (
           <QuestionCard
             question={currentQuestion}
             answers={answers}
             timer={timer}
             onAnswer={checkAnswer}
           />
-        )}
-      </>
     );
   } else {
     return (
