@@ -151,6 +151,14 @@ export default function Trivia() {
       />
     );
   } else if (gameState == "QUIZ_ACTIVE") {
+    if (isLoading) {
+      return <p>Loading questions...</p>;
+    }
+
+    if (!currentQuestion) {
+      return <p>Preparing quiz...</p>;
+    }
+
     return (
           <QuestionCard
             question={currentQuestion}
