@@ -146,7 +146,7 @@ export default function Trivia() {
         setCategory={setCategory}
         difficulty={difficulty}
         setDifficulty={setDifficulty}
-        startGame={() => setGameState("QUIZ_ACTIVE")}
+        startGame={() => setGameState("")}
         // highScores={highScores}
       />
     );
