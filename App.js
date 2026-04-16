@@ -134,7 +134,7 @@ export default function Trivia() {
     if (!currentQuestion) {
       return [];
     }
-    getAnswers(currentQuestion);
+    return getAnswers(currentQuestion);
   }, [currentQuestion]);
 
   if (gameState == "START_SCREEN") {
