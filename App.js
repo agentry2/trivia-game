@@ -20,31 +20,20 @@ export default function Trivia() {
   const [errorMessage, setErrorMessage] = useState("");
 
   // Dynamically fetches questions when the game starts with the parameters amount, category, and difficulty
-  React.useEffect(() => {
-    async function fetchQuestions() {
-      if (gameState != "QUIZ_ACTIVE") {
-        return;
-      }
-
-      setIsLoading(true);
-      setErrorMessage("");
-
-      const url = `https://opentdb.com/api.php?amount=${amount}&category=${category}&difficulty=${difficulty}&type=multiple`;
-      const response = await fetch(url);
-      const result = await response.json();
-      
-      if (result.response_code == 0) {
-        setAllQuestions(result.results);
-      } else {
-        setErrorMessage("Error in the response");
-      }
-
-      setIsLoading(false);
-
-    }
-
-    fetchQuestions();
-  }, [gameState, amount, category, difficulty]);
+ React.useEffect(() => {
+  if (gameState === "QUIZ_ACTIVE") {
+    fetch(`https://opentdb.com/api.php?amount=${amount}&category=${category}&difficulty=${difficulty}&type=multiple`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.results || data.results.length === 0) {
+          console.error("No questions returned");
+          return;
+        }
+        setAllQuestions(data.results);
+      })
+      .catch(err => console.error("Fetch error:", err));
+  }
+}, [gameState]);
 
   // Uses localStorage for high scores
   React.useEffect(() => {
@@ -130,6 +119,13 @@ export default function Trivia() {
     localStorage.setItem("highScores", JSON.stringify(topScores));
   }
 
+  // Function to restart
+  function startGame()  {
+    setCurrentIndex(0);
+    updateScore(0);
+    setGameState("QUIZ_ACTIVE");
+  };
+
   const answers = React.useMemo(() => {
     if (!currentQuestion) {
       return [];
@@ -146,32 +142,27 @@ export default function Trivia() {
         setCategory={setCategory}
         difficulty={difficulty}
         setDifficulty={setDifficulty}
-        startGame={() => setGameState("QUIZ_ACTIVE")}
+        startGame={startGame}
         // highScores={highScores}
       />
     );
   } else if (gameState == "QUIZ_ACTIVE") {
-    if (isLoading) {
-      return <p>Loading questions...</p>;
-    }
-
-    if (!currentQuestion) {
-      return <p>Preparing quiz...</p>;
-    }
-
     return (
-          <QuestionCard
-            question={currentQuestion}
-            answers={answers}
-            timer={timer}
-            onAnswer={checkAnswer}
-          />
+      allQuestions.length > 0 && allQuestions[currentIndex] && (
+      <QuestionCard
+        currentQuestion={allQuestions[currentIndex]}
+        answers={answers}
+        timer={timer}
+        onAnswer={checkAnswer}
+      />
+      )
     );
   } else {
     return (
       <Score
         score={score}
         total={allQuestions.length}
+        highScores={highScores}
         restartGame={() => setGameState("START_SCREEN")}
       />
     );
